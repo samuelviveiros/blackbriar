@@ -1,0 +1,33 @@
+{
+  "name": "blackbriar",
+  "version": "0.1.0",
+  "description": "A simple Electron GUI builder.",
+  "main": "main.js",
+  "scripts": {
+    "test": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samuelviveiros/blackbriar.git"
+  },
+  "keywords": [
+    "blackbriar",
+    "electron",
+    "gui",
+    "builder",
+    "designer",
+    "html",
+    "css",
+    "javascript",
+    "node.js",
+    "drag",
+    "and",
+    "drop"
+  ],
+  "author": "Dartz8901",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/samuelviveiros/blackbriar/issues"
+  },
+  "homepage": "https://github.com/samuelviveiros/blackbriar#readme"
+}
