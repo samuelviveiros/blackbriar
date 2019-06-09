@@ -1,0 +1,9 @@
+* {
+  margin: 0px
+}
+
+#toolbar {
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgb(100, 100, 100);
+}

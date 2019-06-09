@@ -10,10 +10,25 @@
     "type": "git",
     "url": "git+https://github.com/samuelviveiros/blackbriar.git"
   },
-  "keywords": ["blackbriar", "electron", "gui", "builder", "designer", "html", "css", "javascript", "node.js", "drag", "and", "drop"],
+  "keywords": [
+    "blackbriar",
+    "electron",
+    "gui",
+    "builder",
+    "designer",
+    "html",
+    "css",
+    "javascript",
+    "node.js",
+    "drag",
+    "and",
+    "drop"
+  ],
   "author": "Dartz8901",
   "license": "MIT",
-  "bugs": {"url": "https://github.com/samuelviveiros/blackbriar/issues"},
+  "bugs": {
+    "url": "https://github.com/samuelviveiros/blackbriar/issues"
+  },
   "homepage": "https://github.com/samuelviveiros/blackbriar#readme",
   "devDependencies": {
     "electron": "5.0.3"
