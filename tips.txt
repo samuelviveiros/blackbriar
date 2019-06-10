@@ -1,0 +1,11 @@
+CodePen
+https://blog.codepen.io/documentation/features/embedded-pens/
+
+highlight.js - Syntax highlighting for the Web
+https://highlightjs.org/
+
+ACE
+https://ace.c9.io/
+
+Top 5: Best code editor plugins written in Javascript
+https://ourcodeworld.com/articles/read/309/top-5-best-code-editor-plugins-written-in-javascript
