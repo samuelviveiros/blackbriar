@@ -93,8 +93,8 @@ tbButtonEl.addEventListener('click', () => {
   button.setAttribute('id', 'button1')
   //button.setAttribute('onclick', 'function button1Click(){alert("bar")} button1Click()')
   button.style.position = 'absolute'
-  button.style.height = '25px'
-  button.style.width = '73px'
+  button.style.height = '24px'
+  button.style.width = '72px'
   button.style.top = '48px'
   button.style.left = '48px'
   button.style.color = 'red'
@@ -150,20 +150,26 @@ function makeElementResizable(target) {
   let original_y = 0;
   let original_mouse_x = 0;
   let original_mouse_y = 0;
+
+  let leftPlusWidth = 0
+  let topPlusHeight = 0
   for (let i = 0;i < resizers.length; i++) {
     const currentResizer = resizers[i];
-    currentResizer.addEventListener('mousedown', function(e) {
+    currentResizer.addEventListener('mousedown', function(event) {
       isResizing = true
 
-      e.preventDefault()
-      toolbarHeight = parseFloat(getComputedStyle(toolbarEl, null).getPropertyValue('height').replace('px', ''));
-      original_width = parseFloat(getComputedStyle(target, null).getPropertyValue('width').replace('px', ''));
-      original_height = parseFloat(getComputedStyle(target, null).getPropertyValue('height').replace('px', ''));
+      event.preventDefault()
+      toolbarHeight = pixeledValueToInt(toolbarEl, 'height')
       original_x = target.getBoundingClientRect().left;
       original_y = target.getBoundingClientRect().top;
-      original_mouse_x = e.pageX;
-      original_mouse_y = e.pageY;
-      
+      original_mouse_x = event.clientX;
+      original_mouse_y = event.clientY;
+
+      original_width = pixeledValueToInt(target, 'width')
+      original_height = pixeledValueToInt(target, 'height')
+      leftPlusWidth = target.offsetLeft + original_width
+      topPlusHeight = target.offsetTop + original_height
+
       window.onmouseup = stopResize
       window.onmousemove = resize
 
@@ -172,70 +178,76 @@ function makeElementResizable(target) {
     
     function resize(e) {
       if (currentResizer.classList.contains('bottom-right')) {
-        const width = original_width + (e.pageX - original_mouse_x);
-        const height = original_height + (e.pageY - original_mouse_y)
+        const width = fitToGrid(original_width + (event.clientX - original_mouse_x))
+        const height = fitToGrid(original_height + (event.clientY - original_mouse_y))
+
         if (width > minimum_size) {
           target.style.width = width + 'px'
           currentResizer.parentNode.style.width = width + 'px'
         }
+
         if (height > minimum_size) {
           target.style.height = height + 'px'
           currentResizer.parentNode.style.height = height + 'px'
         }
       }
       else if (currentResizer.classList.contains('bottom-left')) {
-        const height = original_height + (e.pageY - original_mouse_y)
-        const width = original_width - (e.pageX - original_mouse_x)
+        const left = fitToGrid(original_x + (event.clientX - original_mouse_x))
+        const height = fitToGrid(original_height + (event.clientY - original_mouse_y))
+        const width = leftPlusWidth - left
+
         if (height > minimum_size) {
           target.style.height = height + 'px'
           currentResizer.parentNode.style.height = height + 'px'
         }
+
         if (width > minimum_size) {
-          
-          if (temp !== fitToGrid(original_x + (e.pageX - original_mouse_x))) {
-            temp = fitToGrid(original_x + (e.pageX - original_mouse_x))
-
-            target.style.left = temp + 'px'
-            currentResizer.parentNode.style.left = temp + 'px'
-
-            // _TODO_ Melhorar esse algorítmo.
-            // target.style.width = width + 'px'
-            // currentResizer.parentNode.style.width = width + 'px'
-            target.style.width = fitToGrid(temp + width) - temp + 'px'
-            currentResizer.parentNode.style.width = fitToGrid(temp + width) - temp + 'px'
-          }
+            target.style.left = left + 'px'
+            currentResizer.parentNode.style.left = left + 'px'
+            
+            target.style.width = width + 'px'
+            currentResizer.parentNode.style.width = width + 'px'
         }
       }
       else if (currentResizer.classList.contains('top-right')) {
-        const width = original_width + (e.pageX - original_mouse_x)
-        const height = original_height - (e.pageY - original_mouse_y)
+        const top = fitToGrid(original_y + (event.clientY - original_mouse_y) - toolbarHeight)
+        const width = fitToGrid(original_width + (event.clientX - original_mouse_x))
+        const height = topPlusHeight - top
+
         if (width > minimum_size) {
           target.style.width = width + 'px'
           currentResizer.parentNode.style.width = width + 'px'
         }
+
         if (height > minimum_size) {
-          let top = original_y + (e.pageY - original_mouse_y) - toolbarHeight + 'px'
           target.style.height = height + 'px'
-          target.style.top = top
+          target.style.top = top + 'px'
+
           currentResizer.parentNode.style.height = height + 'px'
-          currentResizer.parentNode.style.top = top
+          currentResizer.parentNode.style.top = top + 'px'
         }
       }
-      else {
-        const width = original_width - (e.pageX - original_mouse_x)
-        const height = original_height - (e.pageY - original_mouse_y)
+      else if (currentResizer.classList.contains('top-left')) {
+        const top = fitToGrid(original_y + (event.clientY - original_mouse_y) - toolbarHeight)
+        const left = fitToGrid(original_x + (event.clientX - original_mouse_x))
+
+        const width = leftPlusWidth - left
+        const height = topPlusHeight - top
+
         if (width > minimum_size) {
           target.style.width = width + 'px'
-          target.style.left = original_x + (e.pageX - original_mouse_x) + 'px'
+          target.style.left = left + 'px'
+
           currentResizer.parentNode.style.width = width + 'px'
-          currentResizer.parentNode.style.left = original_x + (e.pageX - original_mouse_x) + 'px'
+          currentResizer.parentNode.style.left = left + 'px'
         }
+
         if (height > minimum_size) {
-          let top = original_y + (e.pageY - original_mouse_y) - toolbarHeight + 'px'
           target.style.height = height + 'px'
-          target.style.top = top
+          target.style.top = top + 'px'
+
           currentResizer.parentNode.style.height = height + 'px'
-          currentResizer.parentNode.style.top = top
+          currentResizer.parentNode.style.top = top + 'px'
         }
       }
     }
