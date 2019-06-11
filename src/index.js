@@ -5,6 +5,16 @@ const tbSourceEl = document.getElementById('tbSource')
 
 let toolbarHeight = 50
 
+let body = document.getElementsByTagName('body')[0]
+body.addEventListener('click', event => {
+  document.title = [
+    `${event.target}`,
+    `${event.target.nodeName}`,
+    `${event.target.getAttribute('class')}`
+  ].join(', ')
+})
+
+
 // _SNIPPET_ Converter um valor '50px' em 50, por exemplo.
 function pixeledValueToInt(element, cssProperty) {
   let propValue = getComputedStyle(element, null).getPropertyValue(cssProperty)
@@ -103,8 +113,12 @@ tbButtonEl.addEventListener('click', () => {
   makeElementDraggable(document.querySelector('.resizers'), button)
   makeElementResizable(button)
 
-  document.querySelector('.resizers').style.visibility = 'visible'
+  //document.querySelector('.resizers').style.visibility = 'visible'
   designAreaEl.appendChild(button)
+
+  document.getElementById('svg').setAttribute('viewBox', '0 0 200 200')
+  document.getElementById('svg').setAttribute('width', '200')
+  document.getElementById('svg').setAttribute('height', '200')
 
   // document.addEventListener('mousemove', event => {
   //   let fullText = [

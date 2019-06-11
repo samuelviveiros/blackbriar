@@ -49,8 +49,7 @@
   cursor: nwse-resize; /*resizer cursor*/
 }
 .resizers .resizer.top-middle {
-  margin: auto;
-  width: 5%;
+  left: 50%;
   top: -7px;
   cursor: nwse-resize;
 }
