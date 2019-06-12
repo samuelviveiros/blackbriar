@@ -116,6 +116,9 @@ tbButtonEl.addEventListener('click', () => {
   //document.querySelector('.resizers').style.visibility = 'visible'
   designAreaEl.appendChild(button)
 
+  //https://stackoverflow.com/questions/10349811/how-to-manipulate-translate-transforms-on-a-svg-element-with-javascript-in-chrom
+  document.title = document.getElementById('foo').setAttribute('transform', 'translate(100, 100)')
+
   // document.getElementById('svg').setAttribute('viewBox', '0 0 200 200')
   // document.getElementById('svg').setAttribute('width', '200')
   // document.getElementById('svg').setAttribute('height', '200')
