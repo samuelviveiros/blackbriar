@@ -14,6 +14,38 @@ body.addEventListener('click', event => {
   ].join(', ')
 })
 
+function If(expression) {
+  return {
+    Then: callbackTrue => {
+      return {
+        Else: callbackFalse => {
+          if (expression) {
+            callbackTrue()
+          } else {
+            callbackFalse()
+          }
+        }
+      }
+    }
+  }
+}
+
+// If(2 + 2 === 4).Then(() => {
+//   alert('Ok!')
+// }).Else(() => {
+//   alert('It\'s not ok!')
+// })
+
+// _SNIPPET_ Semelhante ao 'with..do' do pascal.
+function With(destination) {
+  return {
+    Do: source => {
+      Object.keys(source).forEach(property => {
+        destination[property] = source[property]
+      })
+    }
+  }
+}
 
 // _SNIPPET_ Converter um valor '50px' em 50, por exemplo.
 function pixeledValueToInt(element, cssProperty) {
@@ -102,13 +134,24 @@ tbButtonEl.addEventListener('click', () => {
   button.appendChild(document.createTextNode('Button1'))
   button.setAttribute('id', 'button1')
   //button.setAttribute('onclick', 'function button1Click(){alert("bar")} button1Click()')
-  button.style.position = 'absolute'
-  button.style.height = '24px'
-  button.style.width = '72px'
-  button.style.top = '48px'
-  button.style.left = '48px'
-  button.style.color = 'red'
-  button.style.fontWeight = 'bold'
+
+  // button.style.position = 'absolute'
+  // button.style.height = '24px'
+  // button.style.width = '72px'
+  // button.style.top = '48px'
+  // button.style.left = '48px'
+  // button.style.color = 'red'
+  // button.style.fontWeight = 'bold'
+
+  With(button.style).Do({
+    position: 'absolute',
+    height: '24px',
+    width: '72px',
+    top: '48px',
+    left: '48px',
+    color: 'red',
+    fontWeight: 'bold'
+  })
 
   makeElementDraggable(document.querySelector('.resizers'), button)
   makeElementResizable(button)
