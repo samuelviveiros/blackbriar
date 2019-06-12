@@ -116,9 +116,9 @@ tbButtonEl.addEventListener('click', () => {
   //document.querySelector('.resizers').style.visibility = 'visible'
   designAreaEl.appendChild(button)
 
-  document.getElementById('svg').setAttribute('viewBox', '0 0 200 200')
-  document.getElementById('svg').setAttribute('width', '200')
-  document.getElementById('svg').setAttribute('height', '200')
+  // document.getElementById('svg').setAttribute('viewBox', '0 0 200 200')
+  // document.getElementById('svg').setAttribute('width', '200')
+  // document.getElementById('svg').setAttribute('height', '200')
 
   // document.addEventListener('mousemove', event => {
   //   let fullText = [

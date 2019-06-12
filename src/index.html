@@ -22,24 +22,41 @@
         <div class="resizer bottom-right"></div>
       </div>
 
-      <!-- <svg id="svg" width="100" height="100" viewBox="0 0 100 100" style="position: absolute; left: 50px; top: 50px; border: 1px solid black; box-sizing: border-box"> -->
-      <svg id="svg" width="100" height="100" viewBox="0 0 100 100" style="position: absolute; left: 50px; top: 50px; border: 1px solid black; box-sizing: border-box">
+      <svg id="svg" style="position: absolute; border: 1px solid black; box-sizing: border-box; width: 100%; height: 100%; display: block">
+        <g transform="translate(50, 20) scale(1.5)">
+          <!-- CENTER -->
+          <rect x="5" y="5" width="90" height="90" fill="black" />
+
+          <!-- TOP -->
+          <rect width="8" height="8" x="0" y="0" fill="green" />
+          <rect width="8" height="8" x="50" y="0" transform="translate(-4, 0)" fill="green" />
+          <rect width="8" height="8" x="100" y="0" transform="translate(-8, 0)" fill="green" />
+
+          <!--LEFT and RIGHT -->
+          <rect width="8" height="8" x="0" y="50" transform="translate(0, -4)" fill="green" />
+          <rect width="8" height="8" x="100" y="50" transform="translate(-8, -4)" fill="green" />
+
+          <!-- BOTTOM -->
+          <rect width="8" height="8" x="0" y="100" transform="translate(0, -8)" fill="green" />
+          <rect width="8" height="8" x="50" y="100" transform="translate(-4, -8)" fill="green" />
+          <rect width="8" height="8" x="100" y="100" transform="translate(-8, -8)" fill="green" />
+        </g>
+      </svg>
+
+      <!-- <svg id="svg" width="100" height="100" viewBox="0 0 100 100" style="position: absolute; left: 50px; top: 50px; border: 1px solid black; box-sizing: border-box">
         <rect width="100%" height="100%" fill="gold" />
 
-        <!-- TOP -->
         <rect width="8" height="8" x="0%" y="0%" fill="green" />
         <rect width="8" height="8" x="50%" y="0%" transform="translate(-4, 0)" fill="green" />
         <rect width="8" height="8" x="100%" y="0%" transform="translate(-8, 0)" fill="green" />
 
-        <!--LEFT and RIGHT -->
         <rect width="8" height="8" x="0%" y="50%" transform="translate(0, -4)" fill="green" />
         <rect width="8" height="8" x="100%" y="50%" transform="translate(-8, -4)" fill="green" />
 
-        <!-- BOTTOM -->
         <rect width="8" height="8" x="0%" y="100%" transform="translate(0, -8)" fill="green" />
         <rect width="8" height="8" x="50%" y="100%" transform="translate(-4, -8)" fill="green" />
         <rect width="8" height="8" x="100%" y="100%" transform="translate(-8, -8)" fill="green" />
-      </svg>
+      </svg> -->
 
       <!--
         <div style="position: absolute; left: 100px; top: 300px; border: 1px solid black; width: 300px; height: 200px">
