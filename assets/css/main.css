@@ -4,7 +4,7 @@
 
 #toolbar {
   height: 50px;
-  border: 1px solid rgb(100, 100, 100);
+  border: 0px solid rgb(100, 100, 100);
   box-sizing: border-box;
 }
 
@@ -13,14 +13,14 @@
   height: 480px;
   background: url('../images/design-area-background.png');
   /*background-color: rgb(240, 240, 240); /* clBtnFace (Delphi's Form color) */
-  border: 1px solid rgb(255, 0, 255);
+  border: 0px solid rgb(255, 0, 255);
   position: relative;
   box-sizing: border-box;
 }
 
 /*--------------------------------------*/
 
-.resizers {
+.resizers_ {
   left: 48px;
   top: 48px;
   width: 72px;
@@ -33,7 +33,7 @@
   visibility: hidden;
 }
 
-.resizers .resizer{
+.resizers_ .resizer_{
   width: 8px;
   height: 8px;
   /*border-radius: 50%; /*magic to turn square into circle*/
@@ -43,27 +43,27 @@
   z-index: 150;
 }
 
-.resizers .resizer.top-left {
+.resizers_ .resizer_.top-left {
   left: -7px;
   top: -7px;
   cursor: nwse-resize; /*resizer cursor*/
 }
-.resizers .resizer.top-middle {
+.resizers_ .resizer_.top-middle {
   left: 50%;
   top: -7px;
   cursor: nwse-resize;
 }
-.resizers .resizer.top-right {
+.resizers_ .resizer_.top-right {
   right: -7px;
   top: -7px;
   cursor: nesw-resize;
 }
-.resizers .resizer.bottom-left {
+.resizers_ .resizer_.bottom-left {
   left: -7px;
   bottom: -7px;
   cursor: nesw-resize;
 }
-.resizers .resizer.bottom-right {
+.resizers_ .resizer_.bottom-right {
   right: -7px;
   bottom: -7px;
   cursor: nwse-resize;

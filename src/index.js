@@ -1,7 +1,9 @@
 const toolbarEl = document.getElementById('toolbar')
 const designAreaEl = document.getElementById('designArea')
 const tbButtonEl = document.getElementById('tbButton')
+const tbDebugEl = document.getElementById('tbDebug')
 const tbSourceEl = document.getElementById('tbSource')
+const svgEl = document.getElementById('svg')
 
 let toolbarHeight = 50
 
@@ -129,6 +131,68 @@ tbSourceEl.addEventListener('click', () => {
   alert(designAreaEl.innerHTML)
 })
 
+//http://www.petercollingridge.co.uk/tutorials/svg/interactive/dragging/
+svgEl.addEventListener('mousedown', mouseDownEvent => {
+  svgEl.onmousemove = performResize
+  svgEl.onmouseup = stopResize
+
+  // Calcula posição inicial do ponteiro do mouse dentro do elemento SVG.
+  svgEl.InitialMouseX = mouseDownEvent.clientX - svgEl.getBoundingClientRect().left
+  svgEl.InitialMouseY = mouseDownEvent.clientY - svgEl.getBoundingClientRect().top
+
+  function performResize(mouseMoveEvent) {
+  }
+
+  function stopResize(mouseUpEvent) {
+    svgEl.onmousemove = null
+    svgEl.onmouseup = null
+  }
+})
+
+tbDebugEl.addEventListener('click', () => {
+  let resizable = document.querySelector('.resizable')
+  let resizers = document.querySelectorAll('.resizer')
+  let initialClientX = 0
+  let initialClientY = 0
+
+  resizers.forEach(resizer => {
+    resizer.addEventListener('mousedown', event => {
+      console.log('mousedown')
+      initialClientX = event.clientX
+      initialClientY = event.clientY
+      resizable.initialX = Number(resizable.getAttribute('x'))
+      resizable.initialY = Number(resizable.getAttribute('y'))
+      resizable.initialWidth = Number(resizable.getAttribute('width'))
+      resizable.initialHeight = Number(resizable.getAttribute('height'))
+      resizable.xPlusWidth = resizable.initialX + resizable.initialWidth
+      resizable.yPlusHeight = resizable.initialY + resizable.initialHeight
+
+      // alert([
+      //   `left: ${resizable.getBoundingClientRect().left}`, // Posição em relação à viewport.
+      //   `top: ${resizable.getBoundingClientRect().top}`,
+      //   `width: ${resizable.getBoundingClientRect().width}`,
+      //   `height: ${resizable.getBoundingClientRect().height}`,
+      //   `x: ${resizable.getAttribute('x')}`,
+      //   `y: ${resizable.getAttribute('y')}`,
+      //   `translateX: ${resizable.transform.baseVal.getItem(0).matrix.e}`,
+      //   `translateY: ${resizable.transform.baseVal.getItem(0).matrix.f}`,
+      // ].join('\n'))
+
+      window.onmousemove = performResize
+      window.onmouseup = stopResize
+    })
+
+    function performResize(event) {
+      console.info(resizer.classList)
+    }
+
+    function stopResize() {
+      window.onmousemove = null
+      window.onmouseup = null
+    }
+  })
+})
+
 tbButtonEl.addEventListener('click', () => {
   let button = document.createElement('BUTTON')
   button.appendChild(document.createTextNode('Button1'))
@@ -202,7 +266,7 @@ let temp = 0
 /*Make resizable div by Hung Nguyen*/
 function makeElementResizable(target) {
   //const target = document.querySelector(resizable);
-  const resizers = document.querySelectorAll('.resizer')
+  const resizers = document.querySelectorAll('.resizer_')
   const minimum_size = 20;
   let original_width = 0;
   let original_height = 0;

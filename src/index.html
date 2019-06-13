@@ -11,37 +11,31 @@
       <button id="tbButton">Button</button>
       <button id="tbText">Text</button>
       <button id="tbSource">[Source]</button>
+      <button id="tbDebug">[DEBUG]</button>
     </div>
 
     <div id="designArea">
-      <div class="resizers">
-        <div class="resizer top-left"></div>
-        <div class="resizer top-middle"></div>
-        <div class="resizer top-right"></div>
-        <div class="resizer bottom-left"></div>
-        <div class="resizer bottom-right"></div>
+      <div class="resizers_">
+        <div class="resizer_ top-left"></div>
+        <div class="resizer_ top-middle"></div>
+        <div class="resizer_ top-right"></div>
+        <div class="resizer_ bottom-left"></div>
+        <div class="resizer_ bottom-right"></div>
       </div>
 
-      <svg id="svg" style="position: absolute; border: 1px solid black; box-sizing: border-box; width: 100%; height: 100%; display: block">
-        <g transform="translate(50, 20)">
-          <!-- CENTER -->
-          <rect x="5" y="5" width="90" height="90" fill="black" />
-
-          <g id="foo">
-            <!-- TOP -->
-            <rect width="8" height="8" x="0" y="0" fill="green" />
-            <rect width="8" height="8" x="50" y="0" transform="translate(-4, 0)" fill="green" />
-            <rect width="8" height="8" x="100" y="0" transform="translate(-8, 0)" fill="green" />
+      <svg id="svg" style="position: absolute; border: 0px solid black; box-sizing: border-box; width: 100%; height: 100%; display: block; background-color: blue">
+        <g id="selector" transform="translate(0, 0)">
+          <rect class="resizable" x="5" y="5" transform="translate(10, 15)" width="90" height="90" fill="black" />
+          <g class="resizers">
+            <rect class="resizer northwest" width="8" height="8" x="0"   y="0"   fill="green" />
+            <rect class="resizer north"     width="8" height="8" x="50"  y="0"   transform="translate(-4, 0)"  fill="green" />
+            <rect class="resizer northeast" width="8" height="8" x="100" y="0"   transform="translate(-8, 0)"  fill="green" />
+            <rect class="resizer west"      width="8" height="8" x="0"   y="50"  transform="translate(0, -4)"  fill="green" />
+            <rect class="resizer east"      width="8" height="8" x="100" y="50"  transform="translate(-8, -4)" fill="green" />
+            <rect class="resizer southwest" width="8" height="8" x="0"   y="100" transform="translate(0, -8)"  fill="green" />
+            <rect class="resizer south"     width="8" height="8" x="50"  y="100" transform="translate(-4, -8)" fill="green" />
+            <rect class="resizer southeast" width="8" height="8" x="100" y="100" transform="translate(-8, -8)" fill="green" />
           </g>
-
-          <!--LEFT and RIGHT -->
-          <rect width="8" height="8" x="0" y="50" transform="translate(0, -4)" fill="green" />
-          <rect width="8" height="8" x="100" y="50" transform="translate(-8, -4)" fill="green" />
-
-          <!-- BOTTOM -->
-          <rect width="8" height="8" x="0" y="100" transform="translate(0, -8)" fill="green" />
-          <rect width="8" height="8" x="50" y="100" transform="translate(-4, -8)" fill="green" />
-          <rect width="8" height="8" x="100" y="100" transform="translate(-8, -8)" fill="green" />
         </g>
       </svg>
 
