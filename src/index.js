@@ -138,6 +138,9 @@ svgDesignArea.addEventListener('mousedown', mouseDownEvent => {
 
   svgDesignArea.resizable = document.querySelector('.resizable')
   svgDesignArea.resizable.initialHeight = svgDesignArea.resizable.getBoundingClientRect().height
+  svgDesignArea.resizable.initialWidth = svgDesignArea.resizable.getBoundingClientRect().width
+  svgDesignArea.resizable.initialX = Number(svgDesignArea.resizable.getAttribute('x'))
+  svgDesignArea.resizable.initialY = Number(svgDesignArea.resizable.getAttribute('y'))
 
   // Calcula posição inicial do ponteiro do mouse dentro do elemento SVG.
   svgDesignArea.initialMouseX = mouseDownEvent.clientX - svgDesignArea.getBoundingClientRect().left
@@ -145,12 +148,15 @@ svgDesignArea.addEventListener('mousedown', mouseDownEvent => {
 
   svgDesignArea.currentElement = mouseDownEvent.target
 
-  let diff = 0
+  let differenceX = 0
+  let differenceY = 0
   let newHeight = 0
+  let newWidth = 0
   let cssClass = null
 
   function performResize(mouseMoveEvent) {
     cssClass = svgDesignArea.currentElement.classList
+    svgDesignArea.currentMouseX = mouseMoveEvent.clientX - svgDesignArea.getBoundingClientRect().left
     svgDesignArea.currentMouseY = mouseMoveEvent.clientY - svgDesignArea.getBoundingClientRect().top
 
     if (cssClass.contains('resizer')) {
@@ -164,20 +170,26 @@ svgDesignArea.addEventListener('mousedown', mouseDownEvent => {
         case 'southwest':
           break;
         case 'south':
-          diff = svgDesignArea.currentMouseY - svgDesignArea.initialMouseY
-          newHeight = svgDesignArea.resizable.initialHeight + diff
+          differenceY = svgDesignArea.currentMouseY - svgDesignArea.initialMouseY
+          newHeight = svgDesignArea.resizable.initialHeight + differenceY
           svgDesignArea.resizable.setAttribute('height', newHeight)
           break;
         case 'southeast':
           break;
         case 'east':
+          differenceX = svgDesignArea.currentMouseX - svgDesignArea.initialMouseX
+          newWidth = svgDesignArea.resizable.initialWidth + differenceX
+          svgDesignArea.resizable.setAttribute('width', newWidth)
           break;
         case 'northeast':
           break;
       }
     }
     else if (cssClass.contains('resizable')) {
-      console.log('center')
+      differenceX = svgDesignArea.currentMouseX - svgDesignArea.initialMouseX
+      differenceY = svgDesignArea.currentMouseY - svgDesignArea.initialMouseY
+      svgDesignArea.resizable.setAttribute('x', svgDesignArea.resizable.initialX + differenceX)
+      svgDesignArea.resizable.setAttribute('y', svgDesignArea.resizable.initialY + differenceY)
     }
   }
 
