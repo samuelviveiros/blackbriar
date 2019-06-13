@@ -3,7 +3,7 @@ const designAreaEl = document.getElementById('designArea')
 const tbButtonEl = document.getElementById('tbButton')
 const tbDebugEl = document.getElementById('tbDebug')
 const tbSourceEl = document.getElementById('tbSource')
-const svgEl = document.getElementById('svg')
+const svgDesignArea = document.getElementById('svg')
 
 let toolbarHeight = 50
 
@@ -132,20 +132,58 @@ tbSourceEl.addEventListener('click', () => {
 })
 
 //http://www.petercollingridge.co.uk/tutorials/svg/interactive/dragging/
-svgEl.addEventListener('mousedown', mouseDownEvent => {
-  svgEl.onmousemove = performResize
-  svgEl.onmouseup = stopResize
+svgDesignArea.addEventListener('mousedown', mouseDownEvent => {
+  svgDesignArea.onmousemove = performResize
+  svgDesignArea.onmouseup = stopResize
+
+  svgDesignArea.resizable = document.querySelector('.resizable')
+  svgDesignArea.resizable.initialHeight = svgDesignArea.resizable.getBoundingClientRect().height
 
   // Calcula posição inicial do ponteiro do mouse dentro do elemento SVG.
-  svgEl.InitialMouseX = mouseDownEvent.clientX - svgEl.getBoundingClientRect().left
-  svgEl.InitialMouseY = mouseDownEvent.clientY - svgEl.getBoundingClientRect().top
+  svgDesignArea.initialMouseX = mouseDownEvent.clientX - svgDesignArea.getBoundingClientRect().left
+  svgDesignArea.initialMouseY = mouseDownEvent.clientY - svgDesignArea.getBoundingClientRect().top
+
+  svgDesignArea.currentElement = mouseDownEvent.target
+
+  let diff = 0
+  let newHeight = 0
+  let cssClass = null
 
   function performResize(mouseMoveEvent) {
+    cssClass = svgDesignArea.currentElement.classList
+    svgDesignArea.currentMouseY = mouseMoveEvent.clientY - svgDesignArea.getBoundingClientRect().top
+
+    if (cssClass.contains('resizer')) {
+      switch (cssClass[1]) {
+        case 'north':
+          break;
+        case 'northwest':
+          break;
+        case 'west':
+          break;
+        case 'southwest':
+          break;
+        case 'south':
+          diff = svgDesignArea.currentMouseY - svgDesignArea.initialMouseY
+          newHeight = svgDesignArea.resizable.initialHeight + diff
+          svgDesignArea.resizable.setAttribute('height', newHeight)
+          break;
+        case 'southeast':
+          break;
+        case 'east':
+          break;
+        case 'northeast':
+          break;
+      }
+    }
+    else if (cssClass.contains('resizable')) {
+      console.log('center')
+    }
   }
 
   function stopResize(mouseUpEvent) {
-    svgEl.onmousemove = null
-    svgEl.onmouseup = null
+    svgDesignArea.onmousemove = null
+    svgDesignArea.onmouseup = null
   }
 })
 
