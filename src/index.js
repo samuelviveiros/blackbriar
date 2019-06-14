@@ -137,8 +137,8 @@ svgDesignArea.addEventListener('mousedown', mouseDownEvent => {
   svgDesignArea.onmouseup = stopResize
 
   svgDesignArea.resizable = document.querySelector('.resizable')
-  svgDesignArea.resizable.initialHeight = svgDesignArea.resizable.getBoundingClientRect().height
   svgDesignArea.resizable.initialWidth = svgDesignArea.resizable.getBoundingClientRect().width
+  svgDesignArea.resizable.initialHeight = svgDesignArea.resizable.getBoundingClientRect().height
   svgDesignArea.resizable.initialX = Number(svgDesignArea.resizable.getAttribute('x'))
   svgDesignArea.resizable.initialY = Number(svgDesignArea.resizable.getAttribute('y'))
 
@@ -148,26 +148,95 @@ svgDesignArea.addEventListener('mousedown', mouseDownEvent => {
 
   svgDesignArea.currentElement = mouseDownEvent.target
 
-  let differenceX = 0
-  let differenceY = 0
-  let newHeight = 0
-  let newWidth = 0
-  let cssClass = null
+  svgDesignArea.resizers = document.querySelectorAll('.resizer')
+
+  let minimunSize = 20
+
+  let differenceX
+  let differenceY
+  let newHeight
+  let newWidth
+  let newX
+  let newY
+  let cssClass
+
+  let resizableX
+  let resizableY
+  let resizableWidth
+  let resizableHeight
+
+  let distanceInitialXtoInitialMouseX
+  let distanceInitialYtoInitialMouseY
+
+  const RESIZER_HALF = 4
 
   function performResize(mouseMoveEvent) {
     cssClass = svgDesignArea.currentElement.classList
     svgDesignArea.currentMouseX = mouseMoveEvent.clientX - svgDesignArea.getBoundingClientRect().left
     svgDesignArea.currentMouseY = mouseMoveEvent.clientY - svgDesignArea.getBoundingClientRect().top
+    distanceInitialXtoInitialMouseX = svgDesignArea.resizable.initialX - svgDesignArea.initialMouseX
+    distanceInitialYtoInitialMouseY = svgDesignArea.resizable.initialY - svgDesignArea.initialMouseY
 
     if (cssClass.contains('resizer')) {
       switch (cssClass[1]) {
         case 'north':
+          // Without Snapping
+          // differenceY = svgDesignArea.initialMouseY - svgDesignArea.currentMouseY
+          // newHeight = svgDesignArea.resizable.initialHeight + differenceY
+          // if (newHeight > minimunSize) {
+          //   svgDesignArea.resizable.setAttribute('height', newHeight)
+          //   svgDesignArea.resizable.setAttribute('y', svgDesignArea.currentMouseY + distanceInitialYtoInitialMouseY)
+          // }
+
+          // With Snapping
+          newY = fitToGrid(svgDesignArea.currentMouseY)
+          newHeight = svgDesignArea.resizable.initialHeight + (svgDesignArea.resizable.initialY - newY)
+          if (newHeight > minimunSize) {
+            svgDesignArea.resizable.setAttribute('height', newHeight)
+            svgDesignArea.resizable.setAttribute('y', newY)
+          }
           break;
         case 'northwest':
+          differenceX = svgDesignArea.initialMouseX - svgDesignArea.currentMouseX
+          newWidth = svgDesignArea.resizable.initialWidth + differenceX
+          if (newWidth > minimunSize) {
+            svgDesignArea.resizable.setAttribute('width', newWidth)
+            svgDesignArea.resizable.setAttribute('x', svgDesignArea.currentMouseX + distanceInitialXtoInitialMouseX)
+          }
+
+          differenceY = svgDesignArea.initialMouseY - svgDesignArea.currentMouseY
+          newHeight = svgDesignArea.resizable.initialHeight + differenceY
+          if (newHeight > minimunSize) {
+            svgDesignArea.resizable.setAttribute('height', newHeight)
+            svgDesignArea.resizable.setAttribute('y', svgDesignArea.currentMouseY + distanceInitialYtoInitialMouseY)
+          }
           break;
         case 'west':
+          // Without Snapping
+          // differenceX = svgDesignArea.initialMouseX - svgDesignArea.currentMouseX
+          // newWidth = svgDesignArea.resizable.initialWidth + differenceX
+          // if (newWidth > minimunSize) {
+          //   svgDesignArea.resizable.setAttribute('width', newWidth)
+          //   svgDesignArea.resizable.setAttribute('x', svgDesignArea.currentMouseX + distanceInitialXtoInitialMouseX)
+          // }
+
+          // With Snapping
+          newX = fitToGrid(svgDesignArea.currentMouseX)
+          newWidth = svgDesignArea.resizable.initialWidth + (svgDesignArea.resizable.initialX - newX)
+          if (newWidth > minimunSize) {
+            svgDesignArea.resizable.setAttribute('width', newWidth)
+            svgDesignArea.resizable.setAttribute('x', newX)
+          }
           break;
         case 'southwest':
+          differenceX = svgDesignArea.initialMouseX - svgDesignArea.currentMouseX
+          newWidth = svgDesignArea.resizable.initialWidth + differenceX
+          svgDesignArea.resizable.setAttribute('width', newWidth)
+          svgDesignArea.resizable.setAttribute('x', svgDesignArea.currentMouseX + distanceInitialXtoInitialMouseX)
+
+          differenceY = svgDesignArea.currentMouseY - svgDesignArea.initialMouseY
+          newHeight = svgDesignArea.resizable.initialHeight + differenceY
+          svgDesignArea.resizable.setAttribute('height', newHeight)
           break;
         case 'south':
           differenceY = svgDesignArea.currentMouseY - svgDesignArea.initialMouseY
@@ -175,6 +244,13 @@ svgDesignArea.addEventListener('mousedown', mouseDownEvent => {
           svgDesignArea.resizable.setAttribute('height', newHeight)
           break;
         case 'southeast':
+          differenceX = svgDesignArea.currentMouseX - svgDesignArea.initialMouseX
+          newWidth = svgDesignArea.resizable.initialWidth + differenceX
+          svgDesignArea.resizable.setAttribute('width', newWidth)
+
+          differenceY = svgDesignArea.currentMouseY - svgDesignArea.initialMouseY
+          newHeight = svgDesignArea.resizable.initialHeight + differenceY
+          svgDesignArea.resizable.setAttribute('height', newHeight)
           break;
         case 'east':
           differenceX = svgDesignArea.currentMouseX - svgDesignArea.initialMouseX
@@ -182,15 +258,66 @@ svgDesignArea.addEventListener('mousedown', mouseDownEvent => {
           svgDesignArea.resizable.setAttribute('width', newWidth)
           break;
         case 'northeast':
+          differenceX = svgDesignArea.currentMouseX - svgDesignArea.initialMouseX
+          newWidth = svgDesignArea.resizable.initialWidth + differenceX
+          svgDesignArea.resizable.setAttribute('width', newWidth)
+
+          differenceY = svgDesignArea.initialMouseY - svgDesignArea.currentMouseY
+          newHeight = svgDesignArea.resizable.initialHeight + differenceY
+          svgDesignArea.resizable.setAttribute('height', newHeight)
+          svgDesignArea.resizable.setAttribute('y', svgDesignArea.currentMouseY + distanceInitialYtoInitialMouseY)
           break;
       }
     }
     else if (cssClass.contains('resizable')) {
       differenceX = svgDesignArea.currentMouseX - svgDesignArea.initialMouseX
       differenceY = svgDesignArea.currentMouseY - svgDesignArea.initialMouseY
-      svgDesignArea.resizable.setAttribute('x', svgDesignArea.resizable.initialX + differenceX)
-      svgDesignArea.resizable.setAttribute('y', svgDesignArea.resizable.initialY + differenceY)
+      svgDesignArea.resizable.setAttribute('x', fitToGrid(svgDesignArea.resizable.initialX + differenceX))
+      svgDesignArea.resizable.setAttribute('y', fitToGrid(svgDesignArea.resizable.initialY + differenceY))
     }
+
+    svgDesignArea.resizers.forEach(resizer => {
+      cssClass = resizer.classList
+      resizableX = Number(svgDesignArea.resizable.getAttribute('x'))
+      resizableY = Number(svgDesignArea.resizable.getAttribute('y'))
+      resizableWidth = svgDesignArea.resizable.getBoundingClientRect().width
+      resizableHeight = svgDesignArea.resizable.getBoundingClientRect().height
+
+      switch (cssClass[1]) {
+        case 'north':
+          resizer.setAttribute('x', resizableX + Math.floor(resizableWidth / 2) - RESIZER_HALF)
+          resizer.setAttribute('y', resizableY - RESIZER_HALF)
+          break;
+        case 'northwest':
+          resizer.setAttribute('x', resizableX - RESIZER_HALF)
+          resizer.setAttribute('y', resizableY - RESIZER_HALF)
+          break;
+        case 'west':
+          resizer.setAttribute('x', resizableX - RESIZER_HALF)
+          resizer.setAttribute('y', resizableY + Math.floor(resizableHeight / 2) - RESIZER_HALF)
+          break;
+        case 'southwest':
+          resizer.setAttribute('x', resizableX - RESIZER_HALF)
+          resizer.setAttribute('y', resizableY + resizableHeight - RESIZER_HALF)
+          break;
+        case 'south':
+          resizer.setAttribute('x', resizableX + Math.floor(resizableWidth / 2) - RESIZER_HALF)
+          resizer.setAttribute('y', resizableY + resizableHeight - RESIZER_HALF)
+          break;
+        case 'southeast':
+            resizer.setAttribute('x', resizableX + resizableWidth - RESIZER_HALF)
+            resizer.setAttribute('y', resizableY + resizableHeight - RESIZER_HALF)
+          break;
+        case 'east':
+          resizer.setAttribute('x', resizableX + resizableWidth - RESIZER_HALF)
+          resizer.setAttribute('y', resizableY + Math.floor(resizableHeight / 2) - RESIZER_HALF)
+          break;
+        case 'northeast':
+          resizer.setAttribute('x', resizableX + resizableWidth - RESIZER_HALF)
+          resizer.setAttribute('y', resizableY - RESIZER_HALF)
+          break;
+      }
+    })
   }
 
   function stopResize(mouseUpEvent) {
