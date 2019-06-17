@@ -131,7 +131,7 @@ if (elementResizers)
     let diffMouseX
     let diffMouseY
 
-    let resizerHalf = 4
+    let tmp = 5 // 0 = outside, 5 = middle, 9 = inside
 
     let snapEnabled = true
 
@@ -259,7 +259,7 @@ if (elementResizers)
         elementResizers.resizable.setAttribute('y', snapEnabled ? fitToGrid(newY) : newY)
       }
 
-      // Reposiciona os resizers de acordo com as novas dimensões do resizable.
+      // Reposiciona os resizers de acordo com as novas dimensões do mockWin.
       elementResizers.resizers.forEach(resizer => {
         cssClass = resizer.classList
         resizableX = Number(elementResizers.resizable.getAttribute('x'))
@@ -268,41 +268,37 @@ if (elementResizers)
         resizableHeight = elementResizers.resizable.getBoundingClientRect().height
 
         switch (cssClass[1]) {
-          case 'north':
-            newX = resizableX + Math.floor(resizableWidth / 2) - resizerHalf
-            resizer.setAttribute('x', newX)
-            resizer.setAttribute('y', resizableY - resizerHalf)
+          case 'northwest': // ok
+            resizer.setAttribute('x', resizableX - 9 + tmp)
+            resizer.setAttribute('y', resizableY - 9 + tmp)
             break;
-          case 'northwest':
-            resizer.setAttribute('x', resizableX - resizerHalf)
-            resizer.setAttribute('y', resizableY - resizerHalf)
-            break;
-          case 'west':
-            newY = resizableY + Math.floor(resizableHeight / 2) - resizerHalf
-            resizer.setAttribute('x', resizableX - resizerHalf)
-            resizer.setAttribute('y', newY)
-            break;
-          case 'southwest':
-            resizer.setAttribute('x', resizableX - resizerHalf)
-            resizer.setAttribute('y', resizableY + resizableHeight - resizerHalf)
-            break;
-          case 'south':
-            newX = resizableX + Math.floor(resizableWidth / 2) - resizerHalf
-            resizer.setAttribute('x', newX)
-            resizer.setAttribute('y', resizableY + resizableHeight - resizerHalf)
-            break;
-          case 'southeast':
-              resizer.setAttribute('x', resizableX + resizableWidth - resizerHalf)
-              resizer.setAttribute('y', resizableY + resizableHeight - resizerHalf)
-            break;
-          case 'east':
-            newY = resizableY + Math.floor(resizableHeight / 2) - resizerHalf
-            resizer.setAttribute('x', resizableX + resizableWidth - resizerHalf)
-            resizer.setAttribute('y', newY)
+          case 'north': // ok
+            resizer.setAttribute('x', resizableX + Math.floor(resizableWidth / 2) - 4)
+            resizer.setAttribute('y', resizableY - 9 + tmp)
             break;
           case 'northeast':
-            resizer.setAttribute('x', resizableX + resizableWidth - resizerHalf)
-            resizer.setAttribute('y', resizableY - resizerHalf)
+            resizer.setAttribute('x', resizableX + resizableWidth + 1 - tmp)
+            resizer.setAttribute('y', resizableY - 9 + tmp)
+            break;
+          case 'east':
+            resizer.setAttribute('x', resizableX + resizableWidth + 1 - tmp)
+            resizer.setAttribute('y', resizableY + Math.floor(resizableHeight / 2) - 4)
+            break;
+          case 'southeast':
+            resizer.setAttribute('x', resizableX + resizableWidth + 1 - tmp)
+            resizer.setAttribute('y', resizableY + resizableHeight + 1 - tmp)
+            break;
+          case 'south':
+            resizer.setAttribute('x', resizableX + Math.floor(resizableWidth / 2) - 4)
+            resizer.setAttribute('y', resizableY + resizableHeight + 1 - tmp)
+            break;
+          case 'southwest':
+            resizer.setAttribute('x', resizableX - 9 + tmp)
+            resizer.setAttribute('y', resizableY + resizableHeight + 1 - tmp)
+            break;
+          case 'west': // ok
+            resizer.setAttribute('x', resizableX - 9 + tmp)
+            resizer.setAttribute('y', resizableY + Math.floor(resizableHeight / 2) - 4)
             break;
         }
       })
