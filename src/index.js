@@ -1,9 +1,9 @@
 const toolbarEl = document.getElementById('toolbar')
-const designAreaEl = document.getElementById('designArea')
+const designAreaEl = document.getElementById('design-area')
 const tbButtonEl = document.getElementById('tbButton')
-const tbDebugEl = document.getElementById('tbDebug')
 const tbSourceEl = document.getElementById('tbSource')
-const svgDesignArea = document.getElementById('svg')
+const elementResizers = document.getElementById('element-resizers')
+const mockWinResizers = document.querySelector('.mock-window-resizers')
 
 let toolbarHeight = 50
 
@@ -74,45 +74,6 @@ function fitToGrid(coordinate, cell) {
   }
 }
 
-// _TODO_ Melhorar o algorítmo da função makeElementDraggable.
-function makeElementDraggable(target, button) {
-  let pos1 = 0, pos2 = 0, firstX = 0, firstY = 0
-  if (target) {
-    target.onmousedown = mouseDown
-  } else {
-    throw 'makeElementDraggable: Invalid element.'
-  }
-
-  function mouseDown(event) {
-    if (isResizing) return;
-
-    event = event || designAreaEl.event
-    event.preventDefault()
-
-    firstX = event.clientX - target.offsetLeft
-    firstY = (event.clientY - toolbarHeight) - target.offsetTop
-
-    designAreaEl.onmouseup = stopDragging
-    designAreaEl.onmousemove = startDragging
-  }
-
-  function startDragging(event) {
-    event = event || designAreaEl.event
-    event.preventDefault()
-    let clientY = event.clientY - toolbarHeight
-
-    target.style.top = fitToGrid(clientY - firstY) + "px";
-    target.style.left = fitToGrid(event.clientX - firstX) + "px";
-    button.style.top = fitToGrid(clientY - firstY) + "px";
-    button.style.left = fitToGrid(event.clientX - firstX) + "px";
-  }
-
-  function stopDragging() {
-    designAreaEl.onmouseup = null
-    designAreaEl.onmousemove = null
-  }
-}
-
 // _SNIPPET_ window.onerror
 window.onerror = (msg, url, line, column, obj) => {
   let fullMsg = [
@@ -132,23 +93,242 @@ tbSourceEl.addEventListener('click', () => {
 })
 
 //http://www.petercollingridge.co.uk/tutorials/svg/interactive/dragging/
-svgDesignArea.addEventListener('mousedown', mouseDownEvent => {
-  svgDesignArea.onmousemove = performResize
-  svgDesignArea.onmouseup = stopResize
+if (elementResizers)
+  elementResizers.addEventListener('mousedown', mouseDownEvent => {
+    elementResizers.onmousemove = performResize
+    elementResizers.onmouseup = stopResize
 
-  svgDesignArea.resizable = document.querySelector('.resizable')
-  svgDesignArea.resizable.initialWidth = svgDesignArea.resizable.getBoundingClientRect().width
-  svgDesignArea.resizable.initialHeight = svgDesignArea.resizable.getBoundingClientRect().height
-  svgDesignArea.resizable.initialX = Number(svgDesignArea.resizable.getAttribute('x'))
-  svgDesignArea.resizable.initialY = Number(svgDesignArea.resizable.getAttribute('y'))
+    elementResizers.resizable = document.querySelector('.resizable')
+    elementResizers.resizable.initialWidth = elementResizers.resizable.getBoundingClientRect().width
+    elementResizers.resizable.initialHeight = elementResizers.resizable.getBoundingClientRect().height
+    elementResizers.resizable.initialX = Number(elementResizers.resizable.getAttribute('x'))
+    elementResizers.resizable.initialY = Number(elementResizers.resizable.getAttribute('y'))
+
+    // Calcula posição inicial do ponteiro do mouse dentro do elemento SVG.
+    elementResizers.initialMouseX = mouseDownEvent.clientX - elementResizers.getBoundingClientRect().left
+    elementResizers.initialMouseY = mouseDownEvent.clientY - elementResizers.getBoundingClientRect().top
+
+    elementResizers.currentElement = mouseDownEvent.target
+
+    elementResizers.resizers = document.querySelectorAll('.element-resizer')
+
+    let minimunSize = 20
+
+    let newHeight
+    let newWidth
+    let newX
+    let newY
+    let cssClass
+
+    let resizableX
+    let resizableY
+    let resizableWidth
+    let resizableHeight
+
+    let distanceInitialXtoInitialMouseX
+    let distanceInitialYtoInitialMouseY
+
+    let diffMouseX
+    let diffMouseY
+
+    let resizerHalf = 4
+
+    let snapEnabled = true
+
+    function performResize(mouseMoveEvent) {
+      cssClass = elementResizers.currentElement.classList
+      elementResizers.currentMouseX = mouseMoveEvent.clientX - elementResizers.getBoundingClientRect().left
+      elementResizers.currentMouseY = mouseMoveEvent.clientY - elementResizers.getBoundingClientRect().top
+      distanceInitialXtoInitialMouseX = elementResizers.resizable.initialX - elementResizers.initialMouseX
+      distanceInitialYtoInitialMouseY = elementResizers.resizable.initialY - elementResizers.initialMouseY
+      diffMouseX = elementResizers.initialMouseX - elementResizers.currentMouseX
+      diffMouseY = elementResizers.initialMouseY - elementResizers.currentMouseY
+
+      // Os algorítmos seguintes permitem redimensionar o resizable.
+      function calcNewWidthEast() {
+        newWidth = elementResizers.currentMouseX - elementResizers.initialMouseX
+        newWidth += elementResizers.resizable.initialWidth
+        newWidth = snapEnabled ? fitToGrid(newWidth) : newWidth
+      }
+
+      function calcNewHeightSouth() {
+        newHeight = elementResizers.currentMouseY - elementResizers.initialMouseY
+        newHeight += elementResizers.resizable.initialHeight
+        newHeight = snapEnabled ? fitToGrid(newHeight) : newHeight
+      }
+
+      function calcNewYandHeightNorth() {
+        newHeight = diffMouseY
+        if (snapEnabled) {
+          newY = fitToGrid(elementResizers.currentMouseY)
+          newHeight = elementResizers.resizable.initialY - newY
+        } else {
+          newY = elementResizers.currentMouseY + distanceInitialYtoInitialMouseY
+        }
+        newHeight = elementResizers.resizable.initialHeight + newHeight
+      }
+
+      function calcNewXandWidthWest() {
+        newWidth = diffMouseX
+        if (snapEnabled) {
+          newX = fitToGrid(elementResizers.currentMouseX)
+          newWidth = elementResizers.resizable.initialX - newX
+        } else {
+          newX = elementResizers.currentMouseX + distanceInitialXtoInitialMouseX
+        }
+        newWidth = elementResizers.resizable.initialWidth + newWidth
+      }
+
+      function setNewYandHeight() {
+        if (newHeight > minimunSize) {
+          elementResizers.resizable.setAttribute('height', newHeight)
+          elementResizers.resizable.setAttribute('y', newY)
+        }
+      }
+
+      function setNewXandWidth() {
+        if (newWidth > minimunSize) {
+          elementResizers.resizable.setAttribute('width', newWidth)
+          elementResizers.resizable.setAttribute('x', newX)
+        }
+      }
+
+      function setNewHeight() {
+        if (newHeight > minimunSize)
+          elementResizers.resizable.setAttribute('height', newHeight)
+      }
+
+      function setNewWidth() {
+        if (newWidth > minimunSize)
+          elementResizers.resizable.setAttribute('width', newWidth)
+      }
+
+      if (cssClass.contains('element-resizer')) {
+        switch (cssClass[1]) {
+          case 'north':
+            calcNewYandHeightNorth()
+            setNewYandHeight()
+            break;
+          case 'northwest':
+            calcNewXandWidthWest()
+            calcNewYandHeightNorth()
+            setNewXandWidth()
+            setNewYandHeight()
+            break;
+          case 'west':
+            calcNewXandWidthWest()
+            setNewXandWidth()
+            break;
+          case 'southwest':
+            calcNewXandWidthWest()
+            calcNewHeightSouth()
+            setNewXandWidth()
+            setNewHeight()
+            break;
+          case 'south':
+            calcNewHeightSouth()
+            setNewHeight()
+            break;
+          case 'southeast':
+            calcNewWidthEast()
+            calcNewHeightSouth()
+            setNewWidth()
+            setNewHeight()
+            break;
+          case 'east':
+            calcNewWidthEast()
+            setNewWidth()
+            break;
+          case 'northeast':
+            calcNewWidthEast()
+            calcNewYandHeightNorth()
+            setNewWidth()
+            setNewYandHeight()
+            break;
+        }
+      }
+      // O algorítmo abaixo permite arrastar o resizable.
+      else if (cssClass.contains('resizable')) {
+        newX = elementResizers.currentMouseX - elementResizers.initialMouseX
+        newX += elementResizers.resizable.initialX
+
+        newY = elementResizers.currentMouseY - elementResizers.initialMouseY
+        newY += elementResizers.resizable.initialY
+
+        elementResizers.resizable.setAttribute('x', snapEnabled ? fitToGrid(newX) : newX)
+        elementResizers.resizable.setAttribute('y', snapEnabled ? fitToGrid(newY) : newY)
+      }
+
+      // Reposiciona os resizers de acordo com as novas dimensões do resizable.
+      elementResizers.resizers.forEach(resizer => {
+        cssClass = resizer.classList
+        resizableX = Number(elementResizers.resizable.getAttribute('x'))
+        resizableY = Number(elementResizers.resizable.getAttribute('y'))
+        resizableWidth = elementResizers.resizable.getBoundingClientRect().width
+        resizableHeight = elementResizers.resizable.getBoundingClientRect().height
+
+        switch (cssClass[1]) {
+          case 'north':
+            newX = resizableX + Math.floor(resizableWidth / 2) - resizerHalf
+            resizer.setAttribute('x', newX)
+            resizer.setAttribute('y', resizableY - resizerHalf)
+            break;
+          case 'northwest':
+            resizer.setAttribute('x', resizableX - resizerHalf)
+            resizer.setAttribute('y', resizableY - resizerHalf)
+            break;
+          case 'west':
+            newY = resizableY + Math.floor(resizableHeight / 2) - resizerHalf
+            resizer.setAttribute('x', resizableX - resizerHalf)
+            resizer.setAttribute('y', newY)
+            break;
+          case 'southwest':
+            resizer.setAttribute('x', resizableX - resizerHalf)
+            resizer.setAttribute('y', resizableY + resizableHeight - resizerHalf)
+            break;
+          case 'south':
+            newX = resizableX + Math.floor(resizableWidth / 2) - resizerHalf
+            resizer.setAttribute('x', newX)
+            resizer.setAttribute('y', resizableY + resizableHeight - resizerHalf)
+            break;
+          case 'southeast':
+              resizer.setAttribute('x', resizableX + resizableWidth - resizerHalf)
+              resizer.setAttribute('y', resizableY + resizableHeight - resizerHalf)
+            break;
+          case 'east':
+            newY = resizableY + Math.floor(resizableHeight / 2) - resizerHalf
+            resizer.setAttribute('x', resizableX + resizableWidth - resizerHalf)
+            resizer.setAttribute('y', newY)
+            break;
+          case 'northeast':
+            resizer.setAttribute('x', resizableX + resizableWidth - resizerHalf)
+            resizer.setAttribute('y', resizableY - resizerHalf)
+            break;
+        }
+      })
+    }
+
+    function stopResize() {
+      elementResizers.onmousemove = null
+      elementResizers.onmouseup = null
+    }
+  })
+
+mockWinResizers.addEventListener('mousedown', mouseDownEvent => {
+  mockWinResizers.onmousemove = performResize
+  mockWinResizers.onmouseup = stopResize
+
+  mockWinResizers.mockWin = document.querySelector('.mock-window')
+  mockWinResizers.mockWin.initialWidth = mockWinResizers.mockWin.getBoundingClientRect().width
+  mockWinResizers.mockWin.initialHeight = mockWinResizers.mockWin.getBoundingClientRect().height
 
   // Calcula posição inicial do ponteiro do mouse dentro do elemento SVG.
-  svgDesignArea.initialMouseX = mouseDownEvent.clientX - svgDesignArea.getBoundingClientRect().left
-  svgDesignArea.initialMouseY = mouseDownEvent.clientY - svgDesignArea.getBoundingClientRect().top
+  mockWinResizers.initialMouseX = mouseDownEvent.clientX - mockWinResizers.getBoundingClientRect().left
+  mockWinResizers.initialMouseY = mouseDownEvent.clientY - mockWinResizers.getBoundingClientRect().top
 
-  svgDesignArea.currentElement = mouseDownEvent.target
+  mockWinResizers.currentElement = mouseDownEvent.target
 
-  svgDesignArea.resizers = document.querySelectorAll('.resizer')
+  mockWinResizers.resizers = document.querySelectorAll('.mock-window-resizer')
 
   let minimunSize = 20
 
@@ -158,271 +338,111 @@ svgDesignArea.addEventListener('mousedown', mouseDownEvent => {
   let newY
   let cssClass
 
-  let resizableX
-  let resizableY
-  let resizableWidth
-  let resizableHeight
+  let mockWinX
+  let mockWinY
+  let mockWinWidth
+  let mockWinHeight
 
-  let distanceInitialXtoInitialMouseX
-  let distanceInitialYtoInitialMouseY
+  let resizerSize = 8
 
-  let diffMouseX
-  let diffMouseY
-
-  let resizerHalf = 4
-
-  let snapEnabled = false
+  let snapEnabled = true
 
   function performResize(mouseMoveEvent) {
-    cssClass = svgDesignArea.currentElement.classList
-    svgDesignArea.currentMouseX = mouseMoveEvent.clientX - svgDesignArea.getBoundingClientRect().left
-    svgDesignArea.currentMouseY = mouseMoveEvent.clientY - svgDesignArea.getBoundingClientRect().top
-    distanceInitialXtoInitialMouseX = svgDesignArea.resizable.initialX - svgDesignArea.initialMouseX
-    distanceInitialYtoInitialMouseY = svgDesignArea.resizable.initialY - svgDesignArea.initialMouseY
-    diffMouseX = svgDesignArea.initialMouseX - svgDesignArea.currentMouseX
-    diffMouseY = svgDesignArea.initialMouseY - svgDesignArea.currentMouseY
+    cssClass = mockWinResizers.currentElement.classList
+    mockWinResizers.currentMouseX = mouseMoveEvent.clientX - mockWinResizers.getBoundingClientRect().left
+    mockWinResizers.currentMouseY = mouseMoveEvent.clientY - mockWinResizers.getBoundingClientRect().top
 
-    if (cssClass.contains('resizer')) {
+    // Os algorítmos seguintes permitem redimensionar o mockWin.
+    function calcNewWidthEast() {
+      newWidth = mockWinResizers.currentMouseX - mockWinResizers.initialMouseX
+      newWidth += mockWinResizers.mockWin.initialWidth
+      newWidth = snapEnabled ? fitToGrid(newWidth) : newWidth
+    }
+
+    function calcNewHeightSouth() {
+      newHeight = mockWinResizers.currentMouseY - mockWinResizers.initialMouseY
+      newHeight += mockWinResizers.mockWin.initialHeight
+      newHeight = snapEnabled ? fitToGrid(newHeight) : newHeight
+    }
+
+    function setNewHeight() {
+      if (newHeight > minimunSize)
+        mockWinResizers.mockWin.setAttribute('height', newHeight)
+    }
+
+    function setNewWidth() {
+      if (newWidth > minimunSize)
+        mockWinResizers.mockWin.setAttribute('width', newWidth)
+    }
+
+    if (cssClass.contains('mock-window-resizer')) {
       switch (cssClass[1]) {
-        case 'north':
-          newHeight = diffMouseY
-          if (snapEnabled) {
-            newY = fitToGrid(svgDesignArea.currentMouseY)
-            newHeight = svgDesignArea.resizable.initialY - newY
-          } else {
-            newY = svgDesignArea.currentMouseY + distanceInitialYtoInitialMouseY
-          }
-          newHeight = svgDesignArea.resizable.initialHeight + newHeight
-
-          if (newHeight > minimunSize) {
-            svgDesignArea.resizable.setAttribute('height', newHeight)
-            svgDesignArea.resizable.setAttribute('y', newY)
-          }
-
-          break;
-        case 'northwest':
-          newWidth = diffMouseX
-          newHeight = diffMouseY
-          if (snapEnabled) {
-            newX = fitToGrid(svgDesignArea.currentMouseX)
-            newY = fitToGrid(svgDesignArea.currentMouseY)
-            newWidth = svgDesignArea.resizable.initialX - newX
-            newHeight = svgDesignArea.resizable.initialY - newY
-          } else {
-            newX = svgDesignArea.currentMouseX + distanceInitialXtoInitialMouseX
-            newY = svgDesignArea.currentMouseY + distanceInitialYtoInitialMouseY
-          }
-          newWidth = svgDesignArea.resizable.initialWidth + newWidth
-          newHeight = svgDesignArea.resizable.initialHeight + newHeight
-
-          if (newWidth > minimunSize) {
-            svgDesignArea.resizable.setAttribute('width', newWidth)
-            svgDesignArea.resizable.setAttribute('x', newX)
-          }
-
-          if (newHeight > minimunSize) {
-            svgDesignArea.resizable.setAttribute('height', newHeight)
-            svgDesignArea.resizable.setAttribute('y', newY)
-          }
-
-          break;
-        case 'west':
-          newWidth = diffMouseX
-          if (snapEnabled) {
-            newX = fitToGrid(svgDesignArea.currentMouseX)
-            newWidth = svgDesignArea.resizable.initialX - newX
-          } else {
-            newX = svgDesignArea.currentMouseX + distanceInitialXtoInitialMouseX
-          }
-          newWidth = svgDesignArea.resizable.initialWidth + newWidth
-
-          if (newWidth > minimunSize) {
-            svgDesignArea.resizable.setAttribute('width', newWidth)
-            svgDesignArea.resizable.setAttribute('x', newX)
-          }
-
-          break;
-        case 'southwest':
-          newWidth = diffMouseX
-          if (snapEnabled) {
-            newX = fitToGrid(svgDesignArea.currentMouseX)
-            newWidth = svgDesignArea.resizable.initialX - newX
-          } else {
-            newX = svgDesignArea.currentMouseX + distanceInitialXtoInitialMouseX
-          }
-          newWidth = svgDesignArea.resizable.initialWidth + newWidth
-
-          newHeight = svgDesignArea.currentMouseY - svgDesignArea.initialMouseY
-          newHeight += svgDesignArea.resizable.initialHeight
-          newHeight = snapEnabled ? fitToGrid(newHeight) : newHeight
-
-          if (newWidth > minimunSize) {
-            svgDesignArea.resizable.setAttribute('width', newWidth)
-            svgDesignArea.resizable.setAttribute('x', newX)
-          }
-
-          if (newHeight > minimunSize)
-            svgDesignArea.resizable.setAttribute('height', newHeight)
-
-          break;
         case 'south':
-          newHeight = svgDesignArea.currentMouseY - svgDesignArea.initialMouseY
-          newHeight += svgDesignArea.resizable.initialHeight
-          newHeight = snapEnabled ? fitToGrid(newHeight) : newHeight
-
-          if (newHeight > minimunSize)
-            svgDesignArea.resizable.setAttribute('height', newHeight)
-
+          calcNewHeightSouth()
+          setNewHeight()
           break;
         case 'southeast':
-          newWidth = svgDesignArea.currentMouseX - svgDesignArea.initialMouseX
-          newWidth += svgDesignArea.resizable.initialWidth
-          newWidth = snapEnabled ? fitToGrid(newWidth) : newWidth
-
-          newHeight = svgDesignArea.currentMouseY - svgDesignArea.initialMouseY
-          newHeight += svgDesignArea.resizable.initialHeight
-          newHeight = snapEnabled ? fitToGrid(newHeight) : newHeight
-
-          if (newWidth > minimunSize)
-            svgDesignArea.resizable.setAttribute('width', newWidth)
-
-          if (newHeight > minimunSize)
-            svgDesignArea.resizable.setAttribute('height', newHeight)
-
+          calcNewWidthEast()
+          calcNewHeightSouth()
+          setNewWidth()
+          setNewHeight()
           break;
         case 'east':
-          newWidth = svgDesignArea.currentMouseX - svgDesignArea.initialMouseX
-          newWidth += svgDesignArea.resizable.initialWidth
-          newWidth = snapEnabled ? fitToGrid(newWidth) : newWidth
-
-          if (newWidth > minimunSize)
-            svgDesignArea.resizable.setAttribute('width', newWidth)
-
-          break;
-        case 'northeast':
-          newWidth = svgDesignArea.currentMouseX - svgDesignArea.initialMouseX
-          newWidth += svgDesignArea.resizable.initialWidth
-          newWidth = snapEnabled ? fitToGrid(newWidth) : newWidth
-
-          newHeight = diffMouseY
-          if (snapEnabled) {
-            newY = fitToGrid(svgDesignArea.currentMouseY)
-            newHeight = svgDesignArea.resizable.initialY - newY
-          } else {
-            newY = svgDesignArea.currentMouseY + distanceInitialYtoInitialMouseY
-          }
-          newHeight = svgDesignArea.resizable.initialHeight + newHeight
-
-          if (newWidth > minimunSize)
-            svgDesignArea.resizable.setAttribute('width', newWidth)
-
-          if (newHeight > minimunSize) {
-            svgDesignArea.resizable.setAttribute('height', newHeight)
-            svgDesignArea.resizable.setAttribute('y', newY)
-          }
-
+          calcNewWidthEast()
+          setNewWidth()
           break;
       }
     }
-    else if (cssClass.contains('resizable')) {
-      newX = svgDesignArea.resizable.initialX + (svgDesignArea.currentMouseX - svgDesignArea.initialMouseX)
-      newY = svgDesignArea.resizable.initialY + (svgDesignArea.currentMouseY - svgDesignArea.initialMouseY)
-      svgDesignArea.resizable.setAttribute('x', snapEnabled ? fitToGrid(newX) : newX)
-      svgDesignArea.resizable.setAttribute('y', snapEnabled ? fitToGrid(newY) : newY)
-    }
 
-    svgDesignArea.resizers.forEach(resizer => {
+    // Reposiciona os resizers de acordo com as novas dimensões do mockWin.
+    mockWinResizers.resizers.forEach(resizer => {
       cssClass = resizer.classList
-      resizableX = Number(svgDesignArea.resizable.getAttribute('x'))
-      resizableY = Number(svgDesignArea.resizable.getAttribute('y'))
-      resizableWidth = svgDesignArea.resizable.getBoundingClientRect().width
-      resizableHeight = svgDesignArea.resizable.getBoundingClientRect().height
+      mockWinX = Number(mockWinResizers.mockWin.getAttribute('x'))
+      mockWinY = Number(mockWinResizers.mockWin.getAttribute('y'))
+      mockWinWidth = mockWinResizers.mockWin.getBoundingClientRect().width
+      mockWinHeight = mockWinResizers.mockWin.getBoundingClientRect().height
 
       switch (cssClass[1]) {
         case 'north':
-          resizer.setAttribute('x', resizableX + Math.floor(resizableWidth / 2) - resizerHalf)
-          resizer.setAttribute('y', resizableY - resizerHalf)
-          break;
-        case 'northwest':
-          resizer.setAttribute('x', resizableX - resizerHalf)
-          resizer.setAttribute('y', resizableY - resizerHalf)
-          break;
-        case 'west':
-          resizer.setAttribute('x', resizableX - resizerHalf)
-          resizer.setAttribute('y', resizableY + Math.floor(resizableHeight / 2) - resizerHalf)
-          break;
-        case 'southwest':
-          resizer.setAttribute('x', resizableX - resizerHalf)
-          resizer.setAttribute('y', resizableY + resizableHeight - resizerHalf)
-          break;
-        case 'south':
-          resizer.setAttribute('x', resizableX + Math.floor(resizableWidth / 2) - resizerHalf)
-          resizer.setAttribute('y', resizableY + resizableHeight - resizerHalf)
-          break;
-        case 'southeast':
-            resizer.setAttribute('x', resizableX + resizableWidth - resizerHalf)
-            resizer.setAttribute('y', resizableY + resizableHeight - resizerHalf)
-          break;
-        case 'east':
-          resizer.setAttribute('x', resizableX + resizableWidth - resizerHalf)
-          resizer.setAttribute('y', resizableY + Math.floor(resizableHeight / 2) - resizerHalf)
+          newX = mockWinX + Math.floor(mockWinWidth / 2) - 4
+          resizer.setAttribute('x', newX)
+          resizer.setAttribute('y', 0)
           break;
         case 'northeast':
-          resizer.setAttribute('x', resizableX + resizableWidth - resizerHalf)
-          resizer.setAttribute('y', resizableY - resizerHalf)
+          resizer.setAttribute('x', mockWinWidth + 10)
+          resizer.setAttribute('y', 0)
+          break;
+        case 'east':
+          newY = mockWinY + Math.floor(mockWinHeight / 2) - 4
+          resizer.setAttribute('x', mockWinWidth + 10)
+          resizer.setAttribute('y', newY)
+          break;
+        case 'southeast':
+          resizer.setAttribute('x', mockWinWidth + 10)
+          resizer.setAttribute('y', mockWinHeight + 10)
+          break;
+        case 'south':
+          newX = mockWinX + Math.floor(mockWinWidth / 2) - 4
+          resizer.setAttribute('x', newX)
+          resizer.setAttribute('y', mockWinHeight + 10)
+          break;
+        case 'southwest':
+          resizer.setAttribute('x', 0)
+          resizer.setAttribute('y', mockWinHeight + 10)
+          break;
+        case 'west':
+          newY = mockWinY + Math.floor(mockWinHeight / 2) - 4
+          resizer.setAttribute('x', 0)
+          resizer.setAttribute('y', newY)
           break;
       }
     })
   }
 
-  function stopResize(mouseUpEvent) {
-    svgDesignArea.onmousemove = null
-    svgDesignArea.onmouseup = null
+  function stopResize() {
+    mockWinResizers.onmousemove = null
+    mockWinResizers.onmouseup = null
   }
-})
-
-tbDebugEl.addEventListener('click', () => {
-  let resizable = document.querySelector('.resizable')
-  let resizers = document.querySelectorAll('.resizer')
-  let initialClientX = 0
-  let initialClientY = 0
-
-  resizers.forEach(resizer => {
-    resizer.addEventListener('mousedown', event => {
-      console.log('mousedown')
-      initialClientX = event.clientX
-      initialClientY = event.clientY
-      resizable.initialX = Number(resizable.getAttribute('x'))
-      resizable.initialY = Number(resizable.getAttribute('y'))
-      resizable.initialWidth = Number(resizable.getAttribute('width'))
-      resizable.initialHeight = Number(resizable.getAttribute('height'))
-      resizable.xPlusWidth = resizable.initialX + resizable.initialWidth
-      resizable.yPlusHeight = resizable.initialY + resizable.initialHeight
-
-      // alert([
-      //   `left: ${resizable.getBoundingClientRect().left}`, // Posição em relação à viewport.
-      //   `top: ${resizable.getBoundingClientRect().top}`,
-      //   `width: ${resizable.getBoundingClientRect().width}`,
-      //   `height: ${resizable.getBoundingClientRect().height}`,
-      //   `x: ${resizable.getAttribute('x')}`,
-      //   `y: ${resizable.getAttribute('y')}`,
-      //   `translateX: ${resizable.transform.baseVal.getItem(0).matrix.e}`,
-      //   `translateY: ${resizable.transform.baseVal.getItem(0).matrix.f}`,
-      // ].join('\n'))
-
-      window.onmousemove = performResize
-      window.onmouseup = stopResize
-    })
-
-    function performResize(event) {
-      console.info(resizer.classList)
-    }
-
-    function stopResize() {
-      window.onmousemove = null
-      window.onmouseup = null
-    }
-  })
 })
 
 tbButtonEl.addEventListener('click', () => {
@@ -430,14 +450,6 @@ tbButtonEl.addEventListener('click', () => {
   button.appendChild(document.createTextNode('Button1'))
   button.setAttribute('id', 'button1')
   //button.setAttribute('onclick', 'function button1Click(){alert("bar")} button1Click()')
-
-  // button.style.position = 'absolute'
-  // button.style.height = '24px'
-  // button.style.width = '72px'
-  // button.style.top = '48px'
-  // button.style.left = '48px'
-  // button.style.color = 'red'
-  // button.style.fontWeight = 'bold'
 
   With(button.style).Do({
     position: 'absolute',
@@ -448,9 +460,6 @@ tbButtonEl.addEventListener('click', () => {
     color: 'red',
     fontWeight: 'bold'
   })
-
-  makeElementDraggable(document.querySelector('.resizers'), button)
-  makeElementResizable(button)
 
   //document.querySelector('.resizers').style.visibility = 'visible'
   designAreaEl.appendChild(button)
@@ -491,128 +500,3 @@ tbButtonEl.addEventListener('click', () => {
   //   button.parentNode.removeChild(document.getElementById('button1'))
   // }, 5000);
 })
-
-//----------------------------------------------------------//
-
-let temp = 0
-/*Make resizable div by Hung Nguyen*/
-function makeElementResizable(target) {
-  //const target = document.querySelector(resizable);
-  const resizers = document.querySelectorAll('.resizer_')
-  const minimum_size = 20;
-  let original_width = 0;
-  let original_height = 0;
-  let original_x = 0;
-  let original_y = 0;
-  let original_mouse_x = 0;
-  let original_mouse_y = 0;
-
-  let leftPlusWidth = 0
-  let topPlusHeight = 0
-  for (let i = 0;i < resizers.length; i++) {
-    const currentResizer = resizers[i];
-    currentResizer.addEventListener('mousedown', function(event) {
-      isResizing = true
-
-      event.preventDefault()
-      toolbarHeight = pixeledValueToInt(toolbarEl, 'height')
-      original_x = target.getBoundingClientRect().left;
-      original_y = target.getBoundingClientRect().top;
-      original_mouse_x = event.clientX;
-      original_mouse_y = event.clientY;
-
-      original_width = pixeledValueToInt(target, 'width')
-      original_height = pixeledValueToInt(target, 'height')
-      leftPlusWidth = target.offsetLeft + original_width
-      topPlusHeight = target.offsetTop + original_height
-
-      window.onmouseup = stopResize
-      window.onmousemove = resize
-
-      //currentResizer.style.backgroundColor = 'red'
-    })
-    
-    function resize(e) {
-      if (currentResizer.classList.contains('bottom-right')) {
-        const width = fitToGrid(original_width + (event.clientX - original_mouse_x))
-        const height = fitToGrid(original_height + (event.clientY - original_mouse_y))
-
-        if (width > minimum_size) {
-          target.style.width = width + 'px'
-          currentResizer.parentNode.style.width = width + 'px'
-        }
-
-        if (height > minimum_size) {
-          target.style.height = height + 'px'
-          currentResizer.parentNode.style.height = height + 'px'
-        }
-      }
-      else if (currentResizer.classList.contains('bottom-left')) {
-        const left = fitToGrid(original_x + (event.clientX - original_mouse_x))
-        const height = fitToGrid(original_height + (event.clientY - original_mouse_y))
-        const width = leftPlusWidth - left
-
-        if (height > minimum_size) {
-          target.style.height = height + 'px'
-          currentResizer.parentNode.style.height = height + 'px'
-        }
-
-        if (width > minimum_size) {
-            target.style.left = left + 'px'
-            currentResizer.parentNode.style.left = left + 'px'
-            
-            target.style.width = width + 'px'
-            currentResizer.parentNode.style.width = width + 'px'
-        }
-      }
-      else if (currentResizer.classList.contains('top-right')) {
-        const top = fitToGrid(original_y + (event.clientY - original_mouse_y) - toolbarHeight)
-        const width = fitToGrid(original_width + (event.clientX - original_mouse_x))
-        const height = topPlusHeight - top
-
-        if (width > minimum_size) {
-          target.style.width = width + 'px'
-          currentResizer.parentNode.style.width = width + 'px'
-        }
-
-        if (height > minimum_size) {
-          target.style.height = height + 'px'
-          target.style.top = top + 'px'
-
-          currentResizer.parentNode.style.height = height + 'px'
-          currentResizer.parentNode.style.top = top + 'px'
-        }
-      }
-      else if (currentResizer.classList.contains('top-left')) {
-        const top = fitToGrid(original_y + (event.clientY - original_mouse_y) - toolbarHeight)
-        const left = fitToGrid(original_x + (event.clientX - original_mouse_x))
-
-        const width = leftPlusWidth - left
-        const height = topPlusHeight - top
-
-        if (width > minimum_size) {
-          target.style.width = width + 'px'
-          target.style.left = left + 'px'
-
-          currentResizer.parentNode.style.width = width + 'px'
-          currentResizer.parentNode.style.left = left + 'px'
-        }
-
-        if (height > minimum_size) {
-          target.style.height = height + 'px'
-          target.style.top = top + 'px'
-
-          currentResizer.parentNode.style.height = height + 'px'
-          currentResizer.parentNode.style.top = top + 'px'
-        }
-      }
-    }
-    
-    function stopResize() {
-      isResizing = false
-
-      window.onmouseup = null
-      window.onmousemove = null
-    }
-  }
-}

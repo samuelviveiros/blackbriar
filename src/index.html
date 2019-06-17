@@ -7,71 +7,70 @@
   </head>
   <body>
 
-    <div id="toolbar">
-      <button id="tbButton">Button</button>
-      <button id="tbText">Text</button>
-      <button id="tbSource">[Source]</button>
-      <button id="tbDebug">[DEBUG]</button>
-    </div>
+    <table id="layout">
+      <tr>
+        <td colspan="3" id="header">
+          <div id="toolbar">
+            <button id="tbButton">Button</button>
+            <button id="tbText">Text</button>
+            <button id="tbSource">[Source]</button>
+            <button id="tbDebug">[DEBUG]</button>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td id="side"></td>
+          <td id="splitter"></td>
+          <td id="content">
+            <div id="design-area" style="position: relative; width: 100%; height: 100%">
 
-    <div id="designArea">
-      <div class="resizers_">
-        <div class="resizer_ top-left"></div>
-        <div class="resizer_ top-middle"></div>
-        <div class="resizer_ top-right"></div>
-        <div class="resizer_ bottom-left"></div>
-        <div class="resizer_ bottom-right"></div>
-      </div>
+              <svg class="mock-window-bg" style="position: absolute; width: 100%; height: 100%">
+                <defs>
+                  <filter id="f1" x="0" y="0" width="200%" height="200%">
+                    <feOffset result="offOut" in="SourceAlpha" dx="2" dy="2" />
+                    <feGaussianBlur result="blurOut" in="offOut" stdDeviation="3" />
+                    <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+                  </filter>
+                </defs>
 
-      <svg id="svg" style="position: absolute; border: 0px solid black; box-sizing: border-box; width: 100%; height: 100%; display: block">
-        <g id="selector" transform="translate(0, 0)">
-          <rect class="resizable" x="100" y="100" width="72" height="24" fill="black" />
-          <g class="resizers">
-            <rect class="resizer northwest" width="8" height="8" x="96"   y="96"   fill="green" />
-            <rect class="resizer north"     width="8" height="8" x="146"  y="96"   fill="green" />
-            <rect class="resizer northeast" width="8" height="8" x="196" y="96"   fill="green" />
-            <rect class="resizer west"      width="8" height="8" x="96"   y="146"  fill="green" />
-            <rect class="resizer east"      width="8" height="8" x="196" y="146"  fill="green" />
-            <rect class="resizer southwest" width="8" height="8" x="96"   y="196" fill="green" />
-            <rect class="resizer south"     width="8" height="8" x="146"  y="196" fill="green" />
-            <rect class="resizer southeast" width="8" height="8" x="196" y="196" fill="green" />
+                <defs>
+                  <pattern id="grid-bg" x="0" y="0" width="128" height="128" patternUnits="userSpaceOnUse">
+                    <image x="0" y="0" height="128" width="128" href="../assets/images/design-area-bg.png" />
+                  </pattern>
+                </defs>
 
-            <!-- <rect class="resizer north"     width="8" height="8" x="50"  y="0"   transform="translate(-4, 0)"  fill="green" />
-            <rect class="resizer northeast" width="8" height="8" x="100" y="0"   transform="translate(-8, 0)"  fill="green" />
-            <rect class="resizer west"      width="8" height="8" x="0"   y="50"  transform="translate(0, -4)"  fill="green" />
-            <rect class="resizer east"      width="8" height="8" x="100" y="50"  transform="translate(-8, -4)" fill="green" />
-            <rect class="resizer southwest" width="8" height="8" x="0"   y="100" transform="translate(0, -8)"  fill="green" />
-            <rect class="resizer south"     width="8" height="8" x="50"  y="100" transform="translate(-4, -8)" fill="green" />
-            <rect class="resizer southeast" width="8" height="8" x="100" y="100" transform="translate(-8, -8)" fill="green" /> -->
-          </g>
-        </g>
-      </svg>
+                <rect class="mock-window" x="9" y="9" width="640" height="340" fill="url(#grid-bg)" filter="url(#f1)" />
+              </svg>
 
-      <!-- <svg id="svg" width="100" height="100" viewBox="0 0 100 100" style="position: absolute; left: 50px; top: 50px; border: 1px solid black; box-sizing: border-box">
-        <rect width="100%" height="100%" fill="gold" />
+              <div id="elements-area" style="position: absolute; left: 9px; top: 9px; width: 640px; height: 340px"></div>
 
-        <rect width="8" height="8" x="0%" y="0%" fill="green" />
-        <rect width="8" height="8" x="50%" y="0%" transform="translate(-4, 0)" fill="green" />
-        <rect width="8" height="8" x="100%" y="0%" transform="translate(-8, 0)" fill="green" />
+              <svg class="mock-window-resizers" style="position: absolute; width: 100%; height: 100%">
+                <rect class="mock-window-resizer northwest" width="8" height="8" x="0"   y="0"   fill="rgb(178, 214, 243)" />
+                <rect class="mock-window-resizer north"     width="8" height="8" x="325" y="0"   fill="rgb(178, 214, 243)" />
+                <rect class="mock-window-resizer northeast" width="8" height="8" x="650" y="0"   fill="rgb(178, 214, 243)" />
+                <rect class="mock-window-resizer east"      width="8" height="8" x="650" y="175" fill="rgb(178, 214, 243)" />
+                <rect class="mock-window-resizer southeast" width="8" height="8" x="650" y="350" fill="rgb(178, 214, 243)" />
+                <rect class="mock-window-resizer south"     width="8" height="8" x="325" y="350" fill="rgb(178, 214, 243)" />
+                <rect class="mock-window-resizer southwest" width="8" height="8" x="0"   y="350" fill="rgb(178, 214, 243)" />
+                <rect class="mock-window-resizer west"      width="8" height="8" x="0"   y="175" fill="rgb(178, 214, 243)" />
+              </svg>
 
-        <rect width="8" height="8" x="0%" y="50%" transform="translate(0, -4)" fill="green" />
-        <rect width="8" height="8" x="100%" y="50%" transform="translate(-8, -4)" fill="green" />
-
-        <rect width="8" height="8" x="0%" y="100%" transform="translate(0, -8)" fill="green" />
-        <rect width="8" height="8" x="50%" y="100%" transform="translate(-4, -8)" fill="green" />
-        <rect width="8" height="8" x="100%" y="100%" transform="translate(-8, -8)" fill="green" />
-      </svg> -->
-
-      <!--
-        <div style="position: absolute; left: 100px; top: 300px; border: 1px solid black; width: 300px; height: 200px">
-          <div style="position: absolute; left: -7px; top: -7px; width: 8px; height: 8px; border: 1px solid red"></div>
-          <div style="margin: auto; top: 7px; width: 8px; height: 8px; border: 1px solid red"></div>
-          <div style="width: 100%; height: 100%; border: 1px solid green"></div>
-        </div>
-      -->
-
-    </div>
-
+              <!-- <svg id="element-resizers" style="position: absolute; left: 4px; top: 4px; width: 640px; height: 340px">
+                <rect class="resizable" x="100" y="100" width="72" height="24" fill="black" />
+                <rect class="element-resizer northwest" width="8" height="8" x="96"  y="96"  fill="rgb(178, 214, 243)" stroke="rgb(0, 120, 215)" stroke-width="1" />
+                <rect class="element-resizer north"     width="8" height="8" x="132" y="96"  fill="rgb(178, 214, 243)" stroke="rgb(0, 120, 215)" stroke-width="1" />
+                <rect class="element-resizer northeast" width="8" height="8" x="168" y="96"  fill="rgb(178, 214, 243)" stroke="rgb(0, 120, 215)" stroke-width="1" />
+                <rect class="element-resizer east"      width="8" height="8" x="168" y="108" fill="rgb(178, 214, 243)" stroke="rgb(0, 120, 215)" stroke-width="1" />
+                <rect class="element-resizer southeast" width="8" height="8" x="168" y="120" fill="rgb(178, 214, 243)" stroke="rgb(0, 120, 215)" stroke-width="1" />
+                <rect class="element-resizer south"     width="8" height="8" x="132" y="120" fill="rgb(178, 214, 243)" stroke="rgb(0, 120, 215)" stroke-width="1" />
+                <rect class="element-resizer southwest" width="8" height="8" x="96"  y="120" fill="rgb(178, 214, 243)" stroke="rgb(0, 120, 215)" stroke-width="1" />
+                <rect class="element-resizer west"      width="8" height="8" x="96"  y="108" fill="rgb(178, 214, 243)" stroke="rgb(0, 120, 215)" stroke-width="1" />
+              </svg> -->
+            </div>
+          </td>
+      </tr>
+      <tr><td colspan="3" id="footer"></td></tr>
+    </table>
     <script src="index.js"></script>
   </body>
 </html>
