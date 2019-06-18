@@ -95,6 +95,10 @@ tbSourceEl.addEventListener('click', () => {
 //http://www.petercollingridge.co.uk/tutorials/svg/interactive/dragging/
 if (elementResizers)
   elementResizers.addEventListener('mousedown', mouseDownEvent => {
+    let elementsArea = document.getElementById('elements-area')
+    for (let i = 0; i < elementsArea.children.length; i++)
+      alert(getComputedStyle(elementsArea.children[i], null).getPropertyValue('z-index'))
+
     elementResizers.onmousemove = performResize
     elementResizers.onmouseup = stopResize
 
