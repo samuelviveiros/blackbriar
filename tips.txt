@@ -18,6 +18,8 @@ https://ourcodeworld.com/articles/read/309/top-5-best-code-editor-plugins-writte
 
 
 
+https://stackoverflow.com/questions/2637696/how-to-place-div-side-by-side
+https://www.w3schools.com/howto/howto_css_fixed_sidebar.asp
 https://codepen.io/fxm90/pen/MpGQwL
 https://stackoverflow.com/questions/3779534/how-do-i-disable-text-selection-with-css-or-javascript
 https://stackoverflow.com/questions/16504816/how-to-set-html-content-into-an-iframe/16557787
