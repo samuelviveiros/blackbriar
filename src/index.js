@@ -4,6 +4,7 @@ const tbButtonEl = document.getElementById('tbButton')
 const tbSourceEl = document.getElementById('tbSource')
 const elementResizers = document.getElementById('element-resizers')
 const mockWinResizers = document.querySelector('.mock-window-resizers')
+const frame = document.getElementById('frame')
 
 let toolbarHeight = 50
 
@@ -75,7 +76,7 @@ function fitToGrid(coordinate, cell) {
 }
 
 // _SNIPPET_ window.onerror
-window.onerror = (msg, url, line, column, obj) => {
+function exceptionHandler(msg, url, line, column, obj) {
   let fullMsg = [
     `Oops! Sorry about that.\n`,
     `Error: ${msg}`,
@@ -87,6 +88,10 @@ window.onerror = (msg, url, line, column, obj) => {
 
   alert(fullMsg)
 }
+
+window.onerror = exceptionHandler
+if (frame)
+  frame.contentWindow.onerror = exceptionHandler
 
 tbSourceEl.addEventListener('click', () => {
   alert(designAreaEl.innerHTML)
@@ -314,136 +319,137 @@ if (elementResizers)
     }
   })
 
-mockWinResizers.addEventListener('mousedown', mouseDownEvent => {
-  mockWinResizers.onmousemove = performResize
-  mockWinResizers.onmouseup = stopResize
+if (mockWinResizers)
+  mockWinResizers.addEventListener('mousedown', mouseDownEvent => {
+    mockWinResizers.onmousemove = performResize
+    mockWinResizers.onmouseup = stopResize
 
-  mockWinResizers.mockWin = document.querySelector('.mock-window')
-  mockWinResizers.mockWin.initialWidth = mockWinResizers.mockWin.getBoundingClientRect().width
-  mockWinResizers.mockWin.initialHeight = mockWinResizers.mockWin.getBoundingClientRect().height
+    mockWinResizers.mockWin = document.querySelector('.mock-window')
+    mockWinResizers.mockWin.initialWidth = mockWinResizers.mockWin.getBoundingClientRect().width
+    mockWinResizers.mockWin.initialHeight = mockWinResizers.mockWin.getBoundingClientRect().height
 
-  // Calcula posição inicial do ponteiro do mouse dentro do elemento SVG.
-  mockWinResizers.initialMouseX = mouseDownEvent.clientX - mockWinResizers.getBoundingClientRect().left
-  mockWinResizers.initialMouseY = mouseDownEvent.clientY - mockWinResizers.getBoundingClientRect().top
+    // Calcula posição inicial do ponteiro do mouse dentro do elemento SVG.
+    mockWinResizers.initialMouseX = mouseDownEvent.clientX - mockWinResizers.getBoundingClientRect().left
+    mockWinResizers.initialMouseY = mouseDownEvent.clientY - mockWinResizers.getBoundingClientRect().top
 
-  mockWinResizers.currentElement = mouseDownEvent.target
+    mockWinResizers.currentElement = mouseDownEvent.target
 
-  mockWinResizers.resizers = document.querySelectorAll('.mock-window-resizer')
+    mockWinResizers.resizers = document.querySelectorAll('.mock-window-resizer')
 
-  let minimunSize = 20
+    let minimunSize = 20
 
-  let newHeight
-  let newWidth
-  let newX
-  let newY
-  let cssClass
+    let newHeight
+    let newWidth
+    let newX
+    let newY
+    let cssClass
 
-  let mockWinX
-  let mockWinY
-  let mockWinWidth
-  let mockWinHeight
+    let mockWinX
+    let mockWinY
+    let mockWinWidth
+    let mockWinHeight
 
-  let resizerSize = 8
+    let resizerSize = 8
 
-  let snapEnabled = true
+    let snapEnabled = true
 
-  function performResize(mouseMoveEvent) {
-    cssClass = mockWinResizers.currentElement.classList
-    mockWinResizers.currentMouseX = mouseMoveEvent.clientX - mockWinResizers.getBoundingClientRect().left
-    mockWinResizers.currentMouseY = mouseMoveEvent.clientY - mockWinResizers.getBoundingClientRect().top
+    function performResize(mouseMoveEvent) {
+      cssClass = mockWinResizers.currentElement.classList
+      mockWinResizers.currentMouseX = mouseMoveEvent.clientX - mockWinResizers.getBoundingClientRect().left
+      mockWinResizers.currentMouseY = mouseMoveEvent.clientY - mockWinResizers.getBoundingClientRect().top
 
-    // Os algorítmos seguintes permitem redimensionar o mockWin.
-    function calcNewWidthEast() {
-      newWidth = mockWinResizers.currentMouseX - mockWinResizers.initialMouseX
-      newWidth += mockWinResizers.mockWin.initialWidth
-      newWidth = snapEnabled ? fitToGrid(newWidth) : newWidth
-    }
-
-    function calcNewHeightSouth() {
-      newHeight = mockWinResizers.currentMouseY - mockWinResizers.initialMouseY
-      newHeight += mockWinResizers.mockWin.initialHeight
-      newHeight = snapEnabled ? fitToGrid(newHeight) : newHeight
-    }
-
-    function setNewHeight() {
-      if (newHeight > minimunSize)
-        mockWinResizers.mockWin.setAttribute('height', newHeight)
-    }
-
-    function setNewWidth() {
-      if (newWidth > minimunSize)
-        mockWinResizers.mockWin.setAttribute('width', newWidth)
-    }
-
-    if (cssClass.contains('mock-window-resizer')) {
-      switch (cssClass[1]) {
-        case 'south':
-          calcNewHeightSouth()
-          setNewHeight()
-          break;
-        case 'southeast':
-          calcNewWidthEast()
-          calcNewHeightSouth()
-          setNewWidth()
-          setNewHeight()
-          break;
-        case 'east':
-          calcNewWidthEast()
-          setNewWidth()
-          break;
+      // Os algorítmos seguintes permitem redimensionar o mockWin.
+      function calcNewWidthEast() {
+        newWidth = mockWinResizers.currentMouseX - mockWinResizers.initialMouseX
+        newWidth += mockWinResizers.mockWin.initialWidth
+        newWidth = snapEnabled ? fitToGrid(newWidth) : newWidth
       }
+
+      function calcNewHeightSouth() {
+        newHeight = mockWinResizers.currentMouseY - mockWinResizers.initialMouseY
+        newHeight += mockWinResizers.mockWin.initialHeight
+        newHeight = snapEnabled ? fitToGrid(newHeight) : newHeight
+      }
+
+      function setNewHeight() {
+        if (newHeight > minimunSize)
+          mockWinResizers.mockWin.setAttribute('height', newHeight)
+      }
+
+      function setNewWidth() {
+        if (newWidth > minimunSize)
+          mockWinResizers.mockWin.setAttribute('width', newWidth)
+      }
+
+      if (cssClass.contains('mock-window-resizer')) {
+        switch (cssClass[1]) {
+          case 'south':
+            calcNewHeightSouth()
+            setNewHeight()
+            break;
+          case 'southeast':
+            calcNewWidthEast()
+            calcNewHeightSouth()
+            setNewWidth()
+            setNewHeight()
+            break;
+          case 'east':
+            calcNewWidthEast()
+            setNewWidth()
+            break;
+        }
+      }
+
+      // Reposiciona os resizers de acordo com as novas dimensões do mockWin.
+      mockWinResizers.resizers.forEach(resizer => {
+        cssClass = resizer.classList
+        mockWinX = Number(mockWinResizers.mockWin.getAttribute('x'))
+        mockWinY = Number(mockWinResizers.mockWin.getAttribute('y'))
+        mockWinWidth = mockWinResizers.mockWin.getBoundingClientRect().width
+        mockWinHeight = mockWinResizers.mockWin.getBoundingClientRect().height
+
+        switch (cssClass[1]) {
+          case 'north':
+            newX = mockWinX + Math.floor(mockWinWidth / 2) - 4
+            resizer.setAttribute('x', newX)
+            resizer.setAttribute('y', 0)
+            break;
+          case 'northeast':
+            resizer.setAttribute('x', mockWinWidth + 10)
+            resizer.setAttribute('y', 0)
+            break;
+          case 'east':
+            newY = mockWinY + Math.floor(mockWinHeight / 2) - 4
+            resizer.setAttribute('x', mockWinWidth + 10)
+            resizer.setAttribute('y', newY)
+            break;
+          case 'southeast':
+            resizer.setAttribute('x', mockWinWidth + 10)
+            resizer.setAttribute('y', mockWinHeight + 10)
+            break;
+          case 'south':
+            newX = mockWinX + Math.floor(mockWinWidth / 2) - 4
+            resizer.setAttribute('x', newX)
+            resizer.setAttribute('y', mockWinHeight + 10)
+            break;
+          case 'southwest':
+            resizer.setAttribute('x', 0)
+            resizer.setAttribute('y', mockWinHeight + 10)
+            break;
+          case 'west':
+            newY = mockWinY + Math.floor(mockWinHeight / 2) - 4
+            resizer.setAttribute('x', 0)
+            resizer.setAttribute('y', newY)
+            break;
+        }
+      })
     }
 
-    // Reposiciona os resizers de acordo com as novas dimensões do mockWin.
-    mockWinResizers.resizers.forEach(resizer => {
-      cssClass = resizer.classList
-      mockWinX = Number(mockWinResizers.mockWin.getAttribute('x'))
-      mockWinY = Number(mockWinResizers.mockWin.getAttribute('y'))
-      mockWinWidth = mockWinResizers.mockWin.getBoundingClientRect().width
-      mockWinHeight = mockWinResizers.mockWin.getBoundingClientRect().height
-
-      switch (cssClass[1]) {
-        case 'north':
-          newX = mockWinX + Math.floor(mockWinWidth / 2) - 4
-          resizer.setAttribute('x', newX)
-          resizer.setAttribute('y', 0)
-          break;
-        case 'northeast':
-          resizer.setAttribute('x', mockWinWidth + 10)
-          resizer.setAttribute('y', 0)
-          break;
-        case 'east':
-          newY = mockWinY + Math.floor(mockWinHeight / 2) - 4
-          resizer.setAttribute('x', mockWinWidth + 10)
-          resizer.setAttribute('y', newY)
-          break;
-        case 'southeast':
-          resizer.setAttribute('x', mockWinWidth + 10)
-          resizer.setAttribute('y', mockWinHeight + 10)
-          break;
-        case 'south':
-          newX = mockWinX + Math.floor(mockWinWidth / 2) - 4
-          resizer.setAttribute('x', newX)
-          resizer.setAttribute('y', mockWinHeight + 10)
-          break;
-        case 'southwest':
-          resizer.setAttribute('x', 0)
-          resizer.setAttribute('y', mockWinHeight + 10)
-          break;
-        case 'west':
-          newY = mockWinY + Math.floor(mockWinHeight / 2) - 4
-          resizer.setAttribute('x', 0)
-          resizer.setAttribute('y', newY)
-          break;
-      }
-    })
-  }
-
-  function stopResize() {
-    mockWinResizers.onmousemove = null
-    mockWinResizers.onmouseup = null
-  }
-})
+    function stopResize() {
+      mockWinResizers.onmousemove = null
+      mockWinResizers.onmouseup = null
+    }
+  })
 
 tbButtonEl.addEventListener('click', () => {
   let button = document.createElement('BUTTON')

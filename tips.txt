@@ -9,3 +9,67 @@ https://ace.c9.io/
 
 Top 5: Best code editor plugins written in Javascript
 https://ourcodeworld.com/articles/read/309/top-5-best-code-editor-plugins-written-in-javascript
+
+
+
+
+
+
+
+
+
+https://codepen.io/fxm90/pen/MpGQwL
+https://stackoverflow.com/questions/3779534/how-do-i-disable-text-selection-with-css-or-javascript
+https://stackoverflow.com/questions/16504816/how-to-set-html-content-into-an-iframe/16557787
+https://stackoverflow.com/questions/3999101/get-iframes-document-from-javascript-in-main-document
+https://stackoverflow.com/questions/16164736/css3-height-calc100-not-working
+http://jsfiddle.net/UF3mb/10/
+
+
+<header>Some nav stuff here</header>
+
+<h1>This is the heading</h1>
+
+<div style="width: 100px; height: calc(100% - (20px + 30px)); background-color: black; float: left; display: block"></div>
+
+<div id="theCalcDiv">
+  <div style="position: relative; width: 900px; height: 900px; background-color: gold; float: left"></div>
+</div>
+
+<div style="width: 100px; height: calc(100% - (20px + 30px)); background-color: black; float: left; display: block"></div>
+
+<br style="clear: left;" />
+
+html,body {
+    background: blue;
+    height:100%;
+    padding:0;
+    margin:0;
+}
+header {
+    background: red;
+    height: 20px;
+    width:100%
+}
+h1 {
+    font-size:1.2em;
+    margin:0;
+    padding:0;
+    height: 30px;
+    font-weight: bold;
+    background:yellow
+}
+#theCalcDiv {
+    overflow: scroll;
+    background:green;
+    
+    height: -moz-calc(100% - (20px + 30px));
+    height: -webkit-calc(100% - (20px + 30px));
+    height: calc(100% - (20px + 30px));
+    
+    width: -moz-calc(100% - 250px);
+    width: -webkit-calc(100% - 250px);
+    width: calc(100% - 250px);
+    
+    /*display:block*/
+}
